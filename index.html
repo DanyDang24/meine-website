@@ -1,24 +1,55 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meine Website mit Button</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tic Tac Toe - Das beste Spiel!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #222;
+            color: white;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+        }
+        .cell {
+            background-color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        .cell:hover {
+            background-color: #555;
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 20px;
         }
         button {
-            padding: 15px 30px;
+            margin-top: 20px;
+            padding: 10px 20px;
             font-size: 18px;
             cursor: pointer;
+            border: none;
+            border-radius: 5px;
             background-color: #4CAF50;
             color: white;
-            border: none;
-            border-radius: 8px;
-            transition: background-color 0.3s;
         }
         button:hover {
             background-color: #45a049;
@@ -27,17 +58,72 @@
 </head>
 <body>
 
-    <h1>Willkommen auf meiner Website!</h1>
-    <p>Klicke den Button:</p>
-
-    <button onclick="zeigeNachricht()">Klicke mich!</button>
+    <h1>Tic Tac Toe 🎮</h1>
+    <div class="board" id="board"></div>
+    <div class="status" id="status">Spieler X ist am Zug</div>
+    <button onclick="resetGame()">Neustart</button>
 
     <script>
-        function zeigeNachricht() {
-            alert("Du hast den Button geklickt! 🎉");
+        const board = document.getElementById('board');
+        const statusDiv = document.getElementById('status');
+        let cells = Array(9).fill('');
+        let currentPlayer = 'X';
+        let gameActive = true;
+
+        function renderBoard() {
+            board.innerHTML = '';
+            cells.forEach((cell, index) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('cell');
+                cellDiv.textContent = cell;
+                cellDiv.addEventListener('click', () => handleCellClick(index));
+                board.appendChild(cellDiv);
+            });
         }
+
+        function handleCellClick(index) {
+            if (cells[index] !== '' || !gameActive) return;
+            cells[index] = currentPlayer;
+            renderBoard();
+            checkWinner();
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            if (gameActive) {
+                statusDiv.textContent = `Spieler ${currentPlayer} ist am Zug`;
+            }
+        }
+
+        function checkWinner() {
+            const winningCombinations = [
+                [0,1,2], [3,4,5], [6,7,8],
+                [0,3,6], [1,4,7], [2,5,8],
+                [0,4,8], [2,4,6]
+            ];
+
+            for (const combination of winningCombinations) {
+                const [a, b, c] = combination;
+                if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+                    statusDiv.textContent = `🎉 Spieler ${cells[a]} hat gewonnen! 🎉`;
+                    gameActive = false;
+                    return;
+                }
+            }
+
+            if (!cells.includes('')) {
+                statusDiv.textContent = 'Unentschieden! 🤝';
+                gameActive = false;
+            }
+        }
+
+        function resetGame() {
+            cells = Array(9).fill('');
+            currentPlayer = 'X';
+            gameActive = true;
+            statusDiv.textContent = `Spieler ${currentPlayer} ist am Zug`;
+            renderBoard();
+        }
+
+        renderBoard();
     </script>
 
 </body>
 </html>
-
