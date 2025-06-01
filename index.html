@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Tic Tac Toe - Das beste Spiel!</title>
+    <title>Tic Tac Toe mit Login</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -18,11 +18,33 @@
         h1 {
             margin-bottom: 20px;
         }
+        input {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 250px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
         .board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-template-rows: repeat(3, 100px);
             gap: 10px;
+            margin-top: 20px;
         }
         .cell {
             background-color: #333;
@@ -41,29 +63,43 @@
             margin-top: 20px;
             font-size: 20px;
         }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 18px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
 
-    <h1>Tic Tac Toe 🎮</h1>
-    <div class="board" id="board"></div>
-    <div class="status" id="status">Spieler X ist am Zug</div>
-    <button onclick="resetGame()">Neustart</button>
+    <div id="login">
+        <h1>Login (Demo)</h1>
+        <input type="email" id="email" placeholder="E-Mail Adresse" required />
+        <input type="password" id="password" placeholder="Passwort" required />
+        <button onclick="login()">Anmelden</button>
+        <p id="loginResult"></p>
+    </div>
+
+    <div id="game" style="display:none;">
+        <h1>Tic Tac Toe 🎮</h1>
+        <div class="board" id="board"></div>
+        <div class="status" id="status">Spieler X ist am Zug</div>
+        <button onclick="resetGame()">Neustart</button>
+    </div>
 
     <script>
+        // === LOGIN ===
+        function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // DEMO Prüfung: Passwort muss "1234" sein (nur Demo!)
+            if (email && password === '1234') {
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('game').style.display = 'block';
+                resetGame();
+            } else {
+                document.getElementById('loginResult').textContent = 'Falsche E-Mail oder Passwort (Demo: Passwort ist 1234)';
+                document.getElementById('loginResult').style.color = 'red';
+            }
+        }
+
+        // === TIC TAC TOE ===
         const board = document.getElementById('board');
         const statusDiv = document.getElementById('status');
         let cells = Array(9).fill('');
@@ -121,8 +157,6 @@
             statusDiv.textContent = `Spieler ${currentPlayer} ist am Zug`;
             renderBoard();
         }
-
-        renderBoard();
     </script>
 
 </body>
