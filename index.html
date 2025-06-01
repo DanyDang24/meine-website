@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Tic Tac Toe mit Login</title>
+    <title>Skribbl.io Clone - Partyraum 🎨</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,147 +15,95 @@
             background-color: #222;
             color: white;
         }
-        h1 {
-            margin-bottom: 20px;
-        }
-        input {
-            display: block;
-            margin: 10px 0;
+        input, button {
             padding: 10px;
-            width: 250px;
+            margin: 5px;
             border: none;
             border-radius: 5px;
+            font-size: 16px;
         }
         button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
             background-color: #4CAF50;
             color: white;
+            cursor: pointer;
         }
         button:hover {
             background-color: #45a049;
         }
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 10px;
-            margin-top: 20px;
+        #canvas {
+            border: 2px solid white;
+            background-color: white;
+            cursor: crosshair;
         }
-        .cell {
-            background-color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
-            cursor: pointer;
-            border-radius: 10px;
-            transition: background-color 0.3s;
-        }
-        .cell:hover {
-            background-color: #555;
-        }
-        .status {
-            margin-top: 20px;
-            font-size: 20px;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div id="login">
-        <h1>Login (Demo)</h1>
-        <input type="email" id="email" placeholder="E-Mail Adresse" required />
-        <input type="password" id="password" placeholder="Passwort" required />
-        <button onclick="login()">Anmelden</button>
-        <p id="loginResult"></p>
+    <div id="menu">
+        <h1>Skribbl Clone 🎨</h1>
+        <button onclick="createRoom()">🆕 Raum erstellen</button>
+        <br>
+        <input type="text" id="joinCode" placeholder="Partyraum Code eingeben" />
+        <button onclick="joinRoom()">➡️ Raum beitreten</button>
     </div>
 
-    <div id="game" style="display:none;">
-        <h1>Tic Tac Toe 🎮</h1>
-        <div class="board" id="board"></div>
-        <div class="status" id="status">Spieler X ist am Zug</div>
-        <button onclick="resetGame()">Neustart</button>
+    <div id="room" class="hidden">
+        <h2>Partyraum Code: <span id="roomCode"></span></h2>
+        <p>Du kannst jetzt zeichnen!</p>
+        <canvas id="canvas" width="600" height="400"></canvas>
+        <br>
+        <button onclick="leaveRoom()">🚪 Raum verlassen</button>
     </div>
 
     <script>
-        // === LOGIN ===
-        function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+        // === Menü Logik ===
+        function createRoom() {
+            const code = Math.random().toString(36).substr(2, 6).toUpperCase();
+            enterRoom(code);
+        }
 
-            // DEMO Prüfung: Passwort muss "1234" sein (nur Demo!)
-            if (email && password === '1234') {
-                document.getElementById('login').style.display = 'none';
-                document.getElementById('game').style.display = 'block';
-                resetGame();
+        function joinRoom() {
+            const code = document.getElementById('joinCode').value.toUpperCase();
+            if (code.length >= 3) {
+                enterRoom(code);
             } else {
-                document.getElementById('loginResult').textContent = 'Falsche E-Mail oder Passwort (Demo: Passwort ist 1234)';
-                document.getElementById('loginResult').style.color = 'red';
+                alert('Bitte gültigen Code eingeben!');
             }
         }
 
-        // === TIC TAC TOE ===
-        const board = document.getElementById('board');
-        const statusDiv = document.getElementById('status');
-        let cells = Array(9).fill('');
-        let currentPlayer = 'X';
-        let gameActive = true;
-
-        function renderBoard() {
-            board.innerHTML = '';
-            cells.forEach((cell, index) => {
-                const cellDiv = document.createElement('div');
-                cellDiv.classList.add('cell');
-                cellDiv.textContent = cell;
-                cellDiv.addEventListener('click', () => handleCellClick(index));
-                board.appendChild(cellDiv);
-            });
+        function enterRoom(code) {
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('room').classList.remove('hidden');
+            document.getElementById('roomCode').textContent = code;
+            initCanvas();
         }
 
-        function handleCellClick(index) {
-            if (cells[index] !== '' || !gameActive) return;
-            cells[index] = currentPlayer;
-            renderBoard();
-            checkWinner();
-            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            if (gameActive) {
-                statusDiv.textContent = `Spieler ${currentPlayer} ist am Zug`;
-            }
+        function leaveRoom() {
+            document.getElementById('menu').classList.remove('hidden');
+            document.getElementById('room').classList.add('hidden');
         }
 
-        function checkWinner() {
-            const winningCombinations = [
-                [0,1,2], [3,4,5], [6,7,8],
-                [0,3,6], [1,4,7], [2,5,8],
-                [0,4,8], [2,4,6]
-            ];
+        // === Zeichenfläche ===
+        function initCanvas() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            let drawing = false;
 
-            for (const combination of winningCombinations) {
-                const [a, b, c] = combination;
-                if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-                    statusDiv.textContent = `🎉 Spieler ${cells[a]} hat gewonnen! 🎉`;
-                    gameActive = false;
-                    return;
-                }
-            }
-
-            if (!cells.includes('')) {
-                statusDiv.textContent = 'Unentschieden! 🤝';
-                gameActive = false;
-            }
-        }
-
-        function resetGame() {
-            cells = Array(9).fill('');
-            currentPlayer = 'X';
-            gameActive = true;
-            statusDiv.textContent = `Spieler ${currentPlayer} ist am Zug`;
-            renderBoard();
+            canvas.onmousedown = () => { drawing = true; };
+            canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
+            canvas.onmousemove = (e) => {
+                if (!drawing) return;
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = 'black';
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(e.offsetX, e.offsetY);
+            };
         }
     </script>
 
