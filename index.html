@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Skribbl.io Clone - Partyraum 🎨</title>
+    <title>Dino Jump 🦖</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,99 +12,111 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #222;
-            color: white;
+            background-color: #f0f0f0;
+            overflow: hidden;
         }
-        input, button {
-            padding: 10px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        #canvas {
-            border: 2px solid white;
+        #game {
+            position: relative;
+            width: 800px;
+            height: 200px;
+            border: 2px solid #333;
             background-color: white;
-            cursor: crosshair;
+            overflow: hidden;
         }
-        .hidden {
-            display: none;
+        #dino {
+            position: absolute;
+            bottom: 0;
+            width: 50px;
+            height: 50px;
+            background-color: green;
+            border-radius: 10px;
+        }
+        .jump {
+            animation: jump 0.5s linear;
+        }
+        @keyframes jump {
+            0% { bottom: 0; }
+            50% { bottom: 100px; }
+            100% { bottom: 0; }
+        }
+        #obstacle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 20px;
+            height: 50px;
+            background-color: red;
+            animation: moveObstacle 2s linear infinite;
+        }
+        @keyframes moveObstacle {
+            0% { right: 0; }
+            100% { right: 800px; }
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .score {
+            font-size: 20px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div id="menu">
-        <h1>Skribbl Clone 🎨</h1>
-        <button onclick="createRoom()">🆕 Raum erstellen</button>
-        <br>
-        <input type="text" id="joinCode" placeholder="Partyraum Code eingeben" />
-        <button onclick="joinRoom()">➡️ Raum beitreten</button>
+    <h1>Dino Jump 🦖</h1>
+    <div id="game">
+        <div id="dino"></div>
+        <div id="obstacle"></div>
     </div>
-
-    <div id="room" class="hidden">
-        <h2>Partyraum Code: <span id="roomCode"></span></h2>
-        <p>Du kannst jetzt zeichnen!</p>
-        <canvas id="canvas" width="600" height="400"></canvas>
-        <br>
-        <button onclick="leaveRoom()">🚪 Raum verlassen</button>
-    </div>
+    <div class="score">Punkte: <span id="score">0</span></div>
 
     <script>
-        // === Menü Logik ===
-        function createRoom() {
-            const code = Math.random().toString(36).substr(2, 6).toUpperCase();
-            enterRoom(code);
-        }
+        const dino = document.getElementById('dino');
+        const obstacle = document.getElementById('obstacle');
+        const scoreDisplay = document.getElementById('score');
+        let isJumping = false;
+        let score = 0;
+        let gameOver = false;
 
-        function joinRoom() {
-            const code = document.getElementById('joinCode').value.toUpperCase();
-            if (code.length >= 3) {
-                enterRoom(code);
-            } else {
-                alert('Bitte gültigen Code eingeben!');
+        // Sprung auslösen (Leertaste oder Touch)
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space') {
+                jump();
             }
+        });
+        document.addEventListener('touchstart', function() {
+            jump();
+        });
+
+        function jump() {
+            if (isJumping) return;
+            isJumping = true;
+            dino.classList.add('jump');
+            setTimeout(() => {
+                dino.classList.remove('jump');
+                isJumping = false;
+            }, 500);
         }
 
-        function enterRoom(code) {
-            document.getElementById('menu').classList.add('hidden');
-            document.getElementById('room').classList.remove('hidden');
-            document.getElementById('roomCode').textContent = code;
-            initCanvas();
-        }
+        // Kollisionsprüfung
+        let checkCollision = setInterval(function() {
+            const dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue('bottom'));
+            const obstacleLeft = parseInt(window.getComputedStyle(obstacle).getPropertyValue('right'));
 
-        function leaveRoom() {
-            document.getElementById('menu').classList.remove('hidden');
-            document.getElementById('room').classList.add('hidden');
-        }
+            if (obstacleLeft > 750 && obstacleLeft < 800 && dinoTop < 50 && !gameOver) {
+                alert('💥 Game Over! Dein Score: ' + score);
+                gameOver = true;
+                location.reload();
+            }
+        }, 10);
 
-        // === Zeichenfläche ===
-        function initCanvas() {
-            const canvas = document.getElementById('canvas');
-            const ctx = canvas.getContext('2d');
-            let drawing = false;
-
-            canvas.onmousedown = () => { drawing = true; };
-            canvas.onmouseup = () => { drawing = false; ctx.beginPath(); };
-            canvas.onmousemove = (e) => {
-                if (!drawing) return;
-                ctx.lineWidth = 4;
-                ctx.lineCap = 'round';
-                ctx.strokeStyle = 'black';
-                ctx.lineTo(e.offsetX, e.offsetY);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(e.offsetX, e.offsetY);
-            };
-        }
+        // Punkte erhöhen
+        setInterval(function() {
+            if (!gameOver) {
+                score++;
+                scoreDisplay.textContent = score;
+            }
+        }, 200);
     </script>
 
 </body>
