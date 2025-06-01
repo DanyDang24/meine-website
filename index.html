@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meine Website mit Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 100px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Willkommen auf meiner Website!</h1>
+    <p>Klicke den Button:</p>
+
+    <button onclick="zeigeNachricht()">Klicke mich!</button>
+
+    <script>
+        function zeigeNachricht() {
+            alert("Du hast den Button geklickt! 🎉");
+        }
+    </script>
+
+</body>
+</html>
+
