@@ -3,57 +3,71 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Dino Jump 🦖</title>
+    <title>Dino Game 🦖</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #f0f0f0;
             overflow: hidden;
+            margin: 0;
         }
         #game {
             position: relative;
             width: 800px;
             height: 200px;
+            background-color: #fff;
             border: 2px solid #333;
-            background-color: white;
             overflow: hidden;
+        }
+        #ground {
+            position: absolute;
+            bottom: 0;
+            width: 1600px;
+            height: 20px;
+            background: url('https://i.imgur.com/6XKfMwS.png') repeat-x;
+            animation: groundMove 2s linear infinite;
+        }
+        @keyframes groundMove {
+            0% { left: 0; }
+            100% { left: -800px; }
         }
         #dino {
             position: absolute;
-            bottom: 0;
-            width: 50px;
-            height: 50px;
-            background-color: green;
-            border-radius: 10px;
+            bottom: 20px;
+            left: 50px;
+            width: 44px;
+            height: 47px;
+            background: url('https://i.imgur.com/Hk8Vt4A.png') no-repeat;
+            background-size: cover;
         }
         .jump {
-            animation: jump 0.5s linear;
+            animation: jump 0.5s ease;
         }
         @keyframes jump {
-            0% { bottom: 0; }
-            50% { bottom: 100px; }
-            100% { bottom: 0; }
+            0% { bottom: 20px; }
+            50% { bottom: 120px; }
+            100% { bottom: 20px; }
         }
-        #obstacle {
+        #cactus {
             position: absolute;
-            right: 0;
-            bottom: 0;
-            width: 20px;
+            bottom: 20px;
+            right: -50px;
+            width: 25px;
             height: 50px;
-            background-color: red;
-            animation: moveObstacle 2s linear infinite;
+            background: url('https://i.imgur.com/QZ6c1vv.png') no-repeat;
+            background-size: cover;
+            animation: cactusMove 2s linear infinite;
         }
-        @keyframes moveObstacle {
-            0% { right: 0; }
-            100% { right: 800px; }
+        @keyframes cactusMove {
+            0% { right: -50px; }
+            100% { right: 850px; }
         }
         h1 {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .score {
             font-size: 20px;
@@ -63,22 +77,23 @@
 </head>
 <body>
 
-    <h1>Dino Jump 🦖</h1>
+    <h1>Dino Game 🦖</h1>
     <div id="game">
+        <div id="ground"></div>
         <div id="dino"></div>
-        <div id="obstacle"></div>
+        <div id="cactus"></div>
     </div>
     <div class="score">Punkte: <span id="score">0</span></div>
 
     <script>
         const dino = document.getElementById('dino');
-        const obstacle = document.getElementById('obstacle');
+        const cactus = document.getElementById('cactus');
         const scoreDisplay = document.getElementById('score');
         let isJumping = false;
         let score = 0;
         let gameOver = false;
 
-        // Sprung auslösen (Leertaste oder Touch)
+        // Sprung auslösen
         document.addEventListener('keydown', function(event) {
             if (event.code === 'Space') {
                 jump();
@@ -100,10 +115,10 @@
 
         // Kollisionsprüfung
         let checkCollision = setInterval(function() {
-            const dinoTop = parseInt(window.getComputedStyle(dino).getPropertyValue('bottom'));
-            const obstacleLeft = parseInt(window.getComputedStyle(obstacle).getPropertyValue('right'));
+            const dinoBottom = parseInt(window.getComputedStyle(dino).getPropertyValue('bottom'));
+            const cactusLeft = parseInt(window.getComputedStyle(cactus).getPropertyValue('right'));
 
-            if (obstacleLeft > 750 && obstacleLeft < 800 && dinoTop < 50 && !gameOver) {
+            if (cactusLeft > 750 && cactusLeft < 800 && dinoBottom < 50 && !gameOver) {
                 alert('💥 Game Over! Dein Score: ' + score);
                 gameOver = true;
                 location.reload();
